@@ -1,7 +1,8 @@
     * = $1000
+    ldx #$01
+    stx $d020
     ldx #$00
     stx $d021
-    stx $d020
 
 clear
     lda #$20
@@ -18,16 +19,20 @@ clear
     bne clear
 
 print_text
-    ldx #$00            ; Reset x register.
+    ldx #$06            ; Reset x register.
+    ldy #$00            ; Reset y register.
 
 print_text_loop
-    lda line,x          ; Load x-th character in string at line.
+    clc
+    jsr $fff0           ; Move cursor (using PLOT)
+    lda line,y          ; Load x-th character in string at line.
     beq end             ; Break if null-terminator detected.
-    jsr $ffd2           ; Print character
-    inx                 ; Increment position in string.
+    jsr $ffd2           ; Print character (using CHROUT)
+    iny                 ; Increment position in string.
     jmp print_text_loop ; Repeat.
 
 end jmp end             ; End and stall
 
 line
-    .text "test", 0
+    .text "test"
+    .byte 0
